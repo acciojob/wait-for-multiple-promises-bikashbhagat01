@@ -1,17 +1,16 @@
-//your JS code here. If required.
 document.addEventListener("DOMContentLoaded", () => {
   const output = document.getElementById("output");
 
-  // Initially add the loading row
+  // Add the loading row at the start
   const loadingRow = document.createElement("tr");
-  loadingRow.innerHTML = `<td colspan="2" class="text-center">Loading...</td>`;
+  loadingRow.innerHTML = `<td colspan="2" class="text-center loading">Loading...</td>`;
   output.appendChild(loadingRow);
 
   // Helper function to create a promise that resolves after a random time between 1 and 3 seconds
   function createPromise(index) {
-    const time = Math.random() * 2 + 1; // Random time between 1 and 3 seconds
+    const time = Math.floor(Math.random() * 3000) + 1000; // Random time between 1000ms (1s) and 3000ms (3s)
     return new Promise((resolve) => {
-      setTimeout(() => resolve(time), time * 1000); // Convert time to milliseconds
+      setTimeout(() => resolve(time / 1000), time); // Convert milliseconds to seconds
     });
   }
 
