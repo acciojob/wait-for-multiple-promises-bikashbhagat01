@@ -1,42 +1,73 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const output = document.getElementById("output");
+window.onload = function () {
+  const outputElement = document.getElementById('output');
 
-  // Add the loading row at the start
-  const loadingRow = document.createElement("tr");
-  loadingRow.innerHTML = `<td colspan="2" class="text-center loading">Loading...</td>`;
-  output.appendChild(loadingRow);
+  // Insert the loading row
+  const loadingRow = document.createElement('tr');
+  const loadingCell = document.createElement('td');
+  loadingCell.setAttribute('colspan', '2');
+  loadingCell.textContent = 'Loading...';
+  loadingRow.appendChild(loadingCell);
+  outputElement.appendChild(loadingRow);
 
-  // Helper function to create a promise that resolves after a random time between 1 and 3 seconds
-  function createPromise(index) {
-    const time = Math.floor(Math.random() * 3000) + 1000; // Random time between 1000ms (1s) and 3000ms (3s)
+  // Record the overall start time
+  const startTime = Date.now();
+
+  // Function to create a promise
+  function createPromise(i) {
+    const delay = Math.floor(Math.random() * 2000) + 1000; // Between 1 and 3 seconds
+    const promiseStartTime = Date.now();
+
     return new Promise((resolve) => {
-      setTimeout(() => resolve(time / 1000), time); // Convert milliseconds to seconds
+      setTimeout(() => {
+        const timeTaken = (Date.now() - promiseStartTime) / 1000; // In seconds
+        resolve({ name: 'Promise ' + i, timeTaken: timeTaken.toFixed(3) });
+      }, delay);
     });
   }
 
   // Create 3 promises
-  const promises = [createPromise(1), createPromise(2), createPromise(3)];
+  const promises = [];
+  for (let i = 1; i <= 3; i++) {
+    promises.push(createPromise(i));
+  }
 
-  const startTime = performance.now(); // Start tracking total time
-
-  // Use Promise.all to wait for all promises to resolve
-  Promise.all(promises).then((times) => {
-    // Calculate total time
-    const totalTime = (performance.now() - startTime) / 1000;
+  // Wait for all promises to resolve
+  Promise.all(promises).then((results) => {
+    const endTime = Date.now();
+    const totalTime = (endTime - startTime) / 1000; // In seconds
 
     // Remove the loading row
-    output.innerHTML = "";
+    outputElement.removeChild(loadingRow);
 
-    // Populate the table with results
-    times.forEach((time, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>Promise ${index + 1}</td><td>${time.toFixed(3)} s</td>`;
-      output.appendChild(row);
+    // Sort results by promise name
+    results.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Add rows for each promise
+    results.forEach((result) => {
+      const row = document.createElement('tr');
+
+      const nameCell = document.createElement('td');
+      nameCell.textContent = result.name;
+      row.appendChild(nameCell);
+
+      const timeCell = document.createElement('td');
+      timeCell.textContent = result.timeTaken;
+      row.appendChild(timeCell);
+
+      outputElement.appendChild(row);
     });
 
     // Add the total row
-    const totalRow = document.createElement("tr");
-    totalRow.innerHTML = `<td>Total</td><td>${totalTime.toFixed(3)} s</td>`;
-    output.appendChild(totalRow);
+    const totalRow = document.createElement('tr');
+
+    const totalNameCell = document.createElement('td');
+    totalNameCell.textContent = 'Total';
+    totalRow.appendChild(totalNameCell);
+
+    const totalTimeCell = document.createElement('td');
+    totalTimeCell.textContent = totalTime.toFixed(3);
+    totalRow.appendChild(totalTimeCell);
+
+    outputElement.appendChild(totalRow);
   });
-});
+};
